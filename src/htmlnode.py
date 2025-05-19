@@ -3,16 +3,16 @@ class HTMLNode():
         self.tag = tag
         self.value = value
         self.children = children
-        self.props = props
+        self.props = props or {}
 
-    def __to_html__(self):
-        raise Exception(NotImplementedError)
+    def to_html(self):
+        raise NotImplementedError()
     
-    def __props_to_html__(self):
-        html_props = ""
-        for key, value in self.props:
-            html_props = ' '.join(f'{key}="{value}"')
-        return html_props
+    def props_to_html(self):
+        if not self.props:
+            return ""
+        html_props = [f' {key}="{value}"' for key, value in self.props.items()]
+        return "".join(html_props) #joins the list elements into single string
     
     def __repr__(self):
-        print(f"HTMLNode{self.tag}, {self.value}, {self.children}, {self.props}")
+        return f"HTMLNode(tag={self.tag}, value={self.value}, children={self.children}, props={self.props})"
