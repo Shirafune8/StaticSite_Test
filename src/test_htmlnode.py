@@ -1,6 +1,6 @@
 import unittest
 
-from htmlnode import HTMLNode, LeafNode
+from htmlnode import HTMLNode, LeafNode, ParentNode
 
 
 class TestHTMLNode(unittest.TestCase):
@@ -58,6 +58,37 @@ class TestLeafNode(unittest.TestCase):
     def test_leaf_to_html_None(self):
         with self.assertRaises(ValueError):
             node = LeafNode("p", None, None)
+            node.to_html()
+
+class TestParentNode(unittest.TestCase):
+    def test_to_html_with_children(self):
+        child_node = LeafNode("span", "child")
+        parent_node = ParentNode("div", [child_node])
+        self.assertEqual(parent_node.to_html(), "<div><span>child</span></div>")
+
+    def test_to_html_with_grandchildren(self):
+        grandchild_node = LeafNode("b", "grandchild")
+        child_node = ParentNode("span", [grandchild_node])
+        parent_node = ParentNode("div", [child_node])
+        self.assertEqual(
+         parent_node.to_html(),
+            "<div><span><b>grandchild</b></span></div>",
+        )
+
+    def test_parent_to_html_tag_error(self):
+        with self.assertRaises(ValueError):
+            node = ParentNode("", [], {
+            "href": "https://www.google.com",
+            "target": "_blank"
+        })
+            node.to_html()
+
+    def test_parent_to_html_children_error(self):
+        with self.assertRaises(ValueError):
+            node = ParentNode("p", [], {
+            "href": "https://www.google.com",
+            "target": "_blank"
+        })
             node.to_html()
 
 if __name__ == "__main__":
