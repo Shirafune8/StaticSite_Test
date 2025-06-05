@@ -71,3 +71,14 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
             
     return new_nodes
         
+
+# Using Regex to breakdown markdown text into tuples with alt text and url
+import re
+
+def extract_markdown_images(text):
+    pattern = r"!\[(.*?)\]\((.*?)\)"
+    return re.findall(pattern, text)
+
+def extract_markdown_links(text):
+    pattern = r"(?<!!)\[(.*?)\]\((.*?)\)"
+    return re.findall(pattern, text)
