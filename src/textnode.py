@@ -46,3 +46,28 @@ def text_node_to_html_node(text_node):
         return LeafNode("img", "", {"src": text_node.url, "alt": text_node.text})
     else:
         raise ValueError(f"Unsupported text type: {text_node.text_type}")
+    
+def split_nodes_delimiter(old_nodes, delimiter, text_type):
+    new_nodes = []
+# delimiter are special characters that wrap around text, 
+# It could be ` backtick for code like `code` or ** for **bold** or _ for _italic_
+    for node in old_nodes:
+        if node.text_type == TextType.TEXT:
+            parts = node.text.split(delimiter)
+            if len(parts) % 2 == 0: # checks for unmatched delimiters once.
+                raise ValueError(f"Invalid Markdown syntax: unmatched delimiter '{delimiter}' in text '{node.text}'")
+            # Loop through parts once.
+            for i, part in enumerate(parts):
+                # Alternate between TextType.TEXT and the provided text_type for delimited parts
+               # if part: # check if part is empty or if len(part) > 0:
+                    
+                if i % 2 == 0: # create TextNode with correct type.
+                    new_nodes.append(TextNode(part, TextType.TEXT))
+                else:
+                    new_nodes.append(TextNode(part, text_type))
+        else:
+            # If the node is not of type TEXT, add it directly to the new nodes list
+            new_nodes.append(node)
+            
+    return new_nodes
+        
