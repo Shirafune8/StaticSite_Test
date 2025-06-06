@@ -67,18 +67,68 @@ def split_nodes_delimiter(old_nodes, delimiter, text_type):
                     new_nodes.append(TextNode(part, text_type))
         else:
             # If the node is not of type TEXT, add it directly to the new nodes list
-            new_nodes.append(node)
-            
+            new_nodes.append(node)   
     return new_nodes
-        
 
 # Using Regex to breakdown markdown text into tuples with alt text and url
 import re
 
 def extract_markdown_images(text):
-    pattern = r"!\[(.*?)\]\((.*?)\)"
+    pattern = r"!\[([^\[\]]*)\]\(([^\(\)]*)\)"
     return re.findall(pattern, text)
 
 def extract_markdown_links(text):
-    pattern = r"(?<!!)\[(.*?)\]\((.*?)\)"
+    pattern = r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)"
     return re.findall(pattern, text)
+
+def split_nodes_image(old_nodes): # Splits raw markdown text into TextNodes based on images
+    new_nodes = []
+    for node in old_nodes:
+        if node.text_type != TextType.TEXT:
+            new_nodes.append(node)
+            continue
+        # Extract images from the text
+        images = extract_markdown_images(node.text)
+        if not images:
+            new_nodes.append(node)
+            continue
+        else: # split text into parts for image capture groups
+            text_parts = re.split(r"!\[([^\[\]]*)\]\(([^\(\)]*)\)", node.text)
+            i = 0
+            while i < len(text_parts):
+                text_part = text_parts[i]
+                if text_part:
+                    new_nodes.append(TextNode(text_part, TextType.TEXT))
+                # If we're at an image match, the next two elements are alt and url
+                if i + 2 < len(text_parts):
+                    alt_text = text_parts[i+1]
+                    url = text_parts[i+2]
+                    new_nodes.append(TextNode(alt_text, TextType.IMAGE, url))
+                i += 3
+    return new_nodes
+
+def split_nodes_link(old_nodes):
+    new_nodes = []
+    for node in old_nodes:
+        if node.text_type != TextType.TEXT:
+            new_nodes.append(node)
+            continue
+        # Extract links from the text
+        links = extract_markdown_links(node.text)
+        if not links:
+            new_nodes.append(node)
+            continue
+        else: # split text into parts for link capture groups
+            text_parts = re.split(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", node.text)
+            i = 0
+            while i < len(text_parts):
+                text_part = text_parts[i]
+                if text_part:
+                    new_nodes.append(TextNode(text_part, TextType.TEXT))
+                # If we're at an image match, the next two elements are alt and url
+                if i + 2 < len(text_parts):
+                    anchor_text = text_parts[i+1]
+                    url = text_parts[i+2]
+                    new_nodes.append(TextNode(anchor_text, TextType.LINK, url))
+                i += 3
+    return new_nodes
