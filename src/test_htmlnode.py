@@ -8,7 +8,7 @@ class TestHTMLNode(unittest.TestCase):
         node = HTMLNode(tag="p", value="introduction", children=None, props={"id": "main-header"})
         self.assertEqual(node.tag, "p")
         self.assertEqual(node.value, "introduction")
-        self.assertEqual(node.children, None)
+        self.assertEqual(node.children, [])
         self.assertEqual(node.props, {"id": "main-header"})
 
     def test_repr(self):

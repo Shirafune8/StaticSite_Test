@@ -1,13 +1,24 @@
 class HTMLNode():
-    # represent a node in the structure of HTML document, building blocks for all different parts of a webpage
+    # represent a node in the structure of HTML document, building blocks for all different parts of a webpag
     def __init__(self, tag=None, value=None, children=None, props=None):
         self.tag = tag
         self.value = value
-        self.children = children
+        self.children = children if children is not None else [] # children can be empty list if no children exist
         self.props = props or {}
 
     def to_html(self):
-        raise NotImplementedError()
+        if not self.tag:
+            raise ValueError("Tag is required for HTMLNode.")
+        
+        attr_str = self.props_to_html()
+        
+        if self.children:
+            children_html = "".join(child.to_html() for child in self.children)
+            return f"<{self.tag}{attr_str}>{children_html}</{self.tag}>"
+        elif self.value:
+            return f"<{self.tag}{attr_str}>{self.value}</{self.tag}>"
+        else:
+            return f"<{self.tag}{attr_str} />"
     
     def props_to_html(self):
         if not self.props:
@@ -15,6 +26,9 @@ class HTMLNode():
         html_props = [f' {key}="{value}"' for key, value in self.props.items()]
         return "".join(html_props) #joins the list elements into single string
     
+    def add_child(self, child_node): # Add child_node to list of children
+        self.children.append(child_node)
+
     def __repr__(self):
         return f"HTMLNode(tag={self.tag}, value={self.value}, children={self.children}, props={self.props})"
 
