@@ -40,9 +40,9 @@ class LeafNode(HTMLNode):
         super().__init__(tag=tag, value=value, props=props)
      
     def to_html(self):
-        if self.value is None or self.value == "":
-            raise ValueError
-        if self.tag is None or self.tag == "":
+        if self.value is None:
+            raise ValueError("invalid HTML: no value")
+        if self.tag is None:
             return self.value
         
         attr = ""

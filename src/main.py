@@ -1,7 +1,10 @@
 import os
 
+from block_markdown import extract_title, markdown_to_html_node
+
 def main():
     copy_source_static_to_destination_public_directory()
+    generate_page("content/index.md", "template.html", "public/index.html")
 
 def copy_source_static_to_destination_public_directory(src="static", dest='public'):
     # Delete directory and contents
@@ -39,6 +42,22 @@ def copy_source_static_to_destination_public_directory(src="static", dest='publi
     delete_dir(dest)
     recursive_copy(src, dest)
     print("Copy complete.")
+
+def generate_page(from_path, template_path, dest_path):
+    print(f"Generating page from {from_path} to {dest_path} using {template_path}")
+
+    with open(from_path, 'r') as file:
+        markdown = file.read()
+    with open(template_path, 'r') as file:
+        template = file.read()
+    
+    content = markdown_to_html_node(markdown).to_html()
+    title = extract_title(markdown)
+
+    html = template.replace("{{ Title }}", title).replace("{{ Content }}", content)
+
+    with open(dest_path, 'w') as file:
+        file.write(html)
 
 if __name__ == "__main__":
     main()

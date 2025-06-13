@@ -1,6 +1,6 @@
 import unittest
 
-from block_markdown import BlockType, markdown_to_blocks, block_to_block_type, markdown_to_html_node
+from block_markdown import BlockType, extract_title, markdown_to_blocks, block_to_block_type, markdown_to_html_node
 
 class TestMarkdowntoBlocks(unittest.TestCase):
     # Test markdown text to separate blocks of grouped text
@@ -140,6 +140,76 @@ Code block
         self.assertEqual(html_node.children[3].tag, "ol")
         self.assertEqual(html_node.children[4].tag, "pre")
         self.assertEqual(html_node.children[5].tag, "blockquote")
+
+class TestExtractTitle(unittest.TestCase):
+    def test_valid_title(self):
+        markdown = """
+# Title of the Document
+
+This is a paragraph.
+
+## Subtitle
+
+Another paragraph.
+"""
+        self.assertEqual(extract_title(markdown), "Title of the Document")
+
+    def test_no_title(self):
+        markdown = """
+This is a paragraph.
+
+## Subtitle
+
+Another paragraph.
+"""
+        with self.assertRaises(ValueError) as context:
+            extract_title(markdown)
+        self.assertEqual(str(context.exception), "No heading")
+
+    def test_title_with_extra_whitespace(self):
+        markdown = """
+#    Title with Extra Whitespace    
+
+This is a paragraph.
+"""
+        self.assertEqual(extract_title(markdown), "Title with Extra Whitespace")
+
+    def test_title_not_at_start(self):
+        markdown = """
+This is a paragraph.
+
+# Title Not at Start
+
+Another paragraph.
+"""
+        self.assertEqual(extract_title(markdown), "Title Not at Start")
+
+    def test_multiple_level_1_headings(self):
+        markdown = """
+# First Title
+
+This is a paragraph.
+
+# Second Title
+
+Another paragraph.
+"""
+        self.assertEqual(extract_title(markdown), "First Title")
+
+    def test_no_level_1_heading(self):
+        markdown = """
+## Subtitle
+
+This is a paragraph.
+
+### Sub-subtitle
+
+Another paragraph.
+"""
+        with self.assertRaises(ValueError) as context:
+            extract_title(markdown)
+        self.assertEqual(str(context.exception), "No heading")
+
 
 if __name__ == "__main__":
     unittest.main()

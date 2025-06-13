@@ -79,14 +79,14 @@ def markdown_to_html_node(markdown):
         elif block_type == BlockType.UNORDERED_LIST: #HTML unordered list uses <ul><li>first item</li></ul> for unordered items (ul) and list (li)
             list_items = []
             for line in block.split("\n"):
-                list_items.append(HTMLNode("li", line[2:]))
-            child_node = HTMLNode("ul", list_items)
+                list_items.append(HTMLNode("li", "", text_to_children(line[2:])))
+            child_node = HTMLNode("ul", "", list_items)
         
         elif block_type == BlockType.ORDERED_LIST: #HTML ordered list uses <ol><li>first item</li></ol> for ordered items (ol) and list (li)
             list_items = []
             for line in block.split("\n"):
-                list_items.append(HTMLNode("li", line[line.index(". ") + 2:]))
-            child_node = HTMLNode("ol", list_items)
+                list_items.append(HTMLNode("li", "", text_to_children(line[line.index(". ") + 2:])))
+            child_node = HTMLNode("ol", "", list_items)
         
         else:
             raise ValueError(f"Unsupported block type: {block_type}")
@@ -95,3 +95,17 @@ def markdown_to_html_node(markdown):
         parent_node.add_child(child_node)
     return parent_node
 
+def extract_title(markdown):
+    blocks = markdown_to_blocks(markdown) # Split markdown into blocks using existing func.
+    
+    for block in blocks:
+        block_type = block_to_block_type(block) # Determine type of block by looping with existing func
+
+        if block_type == BlockType.HEADING:
+            # Determine heading level
+            heading_level = len(block.split(" ")[0])
+            
+            if heading_level == 1:
+                return block[heading_level + 1:].strip()
+    
+    raise ValueError("No heading")
