@@ -4,7 +4,7 @@ from block_markdown import extract_title, markdown_to_html_node
 
 def main():
     copy_source_static_to_destination_public_directory()
-    generate_page("content/index.md", "template.html", "public/index.html")
+    generate_pages_recursive("content", "template.html", "public")
 
 def copy_source_static_to_destination_public_directory(src="static", dest='public'):
     # Delete directory and contents
@@ -43,7 +43,7 @@ def copy_source_static_to_destination_public_directory(src="static", dest='publi
     recursive_copy(src, dest)
     print("Copy complete.")
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path): # generate HTML page from Markdown
     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
 
     with open(from_path, 'r') as file:
@@ -58,6 +58,28 @@ def generate_page(from_path, template_path, dest_path):
 
     with open(dest_path, 'w') as file:
         file.write(html)
+
+def generate_pages_recursive(dir_path_content="content", template_path="template.html", dest_dir_path="public"):
+    # Recursively go through the content directory, generate HTML file for each Markdown and writes them to the public directory
+    print(f"Generating page from {dir_path_content} to {dest_dir_path} using {template_path}")
+
+    # Ensure destination directory aka public exists       
+    if not os.path.exists(dest_dir_path):
+        os.mkdir(dest_dir_path) # create directory
+
+    # Iterate through all items in the content directory
+    for item in os.listdir(dir_path_content):
+        src_item = os.path.join(dir_path_content, item)
+        dest_item = os.path.join(dest_dir_path, os.path.splitext(item)[0] + ".html") # Convert .md to .html
+
+        if os.path.isdir(src_item):
+            print(f"Creating directory: {dest_dir_path}")
+            new_dest_dir = os.path.join(dest_dir_path, item)
+            generate_pages_recursive(src_item, template_path, new_dest_dir)  # Recursively copy subdirectories
+        elif src_item.endswith(".md"): # If item is Markdown file, generate HTML page
+            generate_page(src_item, template_path, dest_item)
+        else:
+            print(f"Skipping non-Markdown file: {src_item}")
 
 if __name__ == "__main__":
     main()

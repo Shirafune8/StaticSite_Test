@@ -62,7 +62,7 @@ def markdown_to_html_node(markdown):
             # Determine heading level
             heading_level = len(block.split(" ")[0])
             heading_text = block[heading_level + 1:]
-            child_node = HTMLNode(f"h{heading_level}", heading_text)
+            child_node = HTMLNode(f"h{heading_level}", "", text_to_children(heading_text))
 
         elif block_type == BlockType.PARAGRAPH:
             child_node = HTMLNode("p","", text_to_children(block))
@@ -74,7 +74,7 @@ def markdown_to_html_node(markdown):
 
         elif block_type == BlockType.QUOTE:
             quote_content = "\n".join(line[2:] for line in block.split("\n"))
-            child_node = HTMLNode("blockquote", quote_content)
+            child_node = HTMLNode("blockquote", "", text_to_children(quote_content))
 
         elif block_type == BlockType.UNORDERED_LIST: #HTML unordered list uses <ul><li>first item</li></ul> for unordered items (ul) and list (li)
             list_items = []
