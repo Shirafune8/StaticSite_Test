@@ -6,7 +6,7 @@ from block_markdown import extract_title, markdown_to_html_node
 def main():
     basepath = sys.argv[1] if len(sys.argv) > 1 else "/" # site assumes / is root path of the site
     print(basepath)
-    copy_source_static_to_destination_public_directory()
+    copy_source_static_to_destination_public_directory("static", "docs")
     generate_pages_recursive(basepath, "content", "template.html", "docs")
 
 def copy_source_static_to_destination_public_directory(src="static", dest='public'):
